@@ -11,23 +11,21 @@ class node:
     def __repr__(self):
         return f"{self.name} ({self.size}) \n {self.children}"
 
-history = [x.replace('$ ', '') for x in history if not x.startswith("$ ls")]
-
 root = node("/", 0, None)
 currentNode = root
 
 for command in history:
     match command.split():
-        case ['cd', dirName]:
-            if dirName == "/":
-                currentNode = root
-            elif dirName == "..":
-                currentNode = currentNode.parent
-            else:
-                currentNode = list(
-                    filter(lambda node: node.name == dirName, currentNode.children))[0]
+        case ['$', 'cd', '/']:
+            currentNode = root
+        case ['$', 'cd', '..']:
+            currentNode = currentNode.parent
+        case ['$', 'cd', dirName]:
+            currentNode = list(filter(lambda node: node.name == dirName, currentNode.children))[0]
         case ['dir', dirName]:
             currentNode.children.append(node(dirName, 0, currentNode))
+        case ['$', 'ls']:
+            pass
         case [fileSize, fileName]:
             currentNode.children.append(node(fileName, int(fileSize), currentNode))
 
@@ -38,15 +36,6 @@ def getSize(node):
         size += getSize(child)
     return size
 
-def q1(node):
-    sum = 0
-    size = getSize(node)
-    if node.children and size < 100_000:
-        sum += size
-    for child in node.children:
-        sum += q1(child)
-    return sum
-
 def dirSizes(node):
     dirs = []
     if node.children:
@@ -55,9 +44,10 @@ def dirSizes(node):
         dirs += dirSizes(child)
     return dirs
 
+q1 = sum([x for x in dirSizes(root) if x < 100000]) 
 
 missingSpace = 30000000 - (70000000 - getSize(root))
-q2 = next(filter(lambda x: x > missingSpace, sorted(dirSizes(root))))
+q2 = min([x for x in dirSizes(root) if x > missingSpace]) 
 
-print(q1(root))
+print(q1)
 print(q2)
