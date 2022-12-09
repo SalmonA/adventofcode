@@ -1,41 +1,41 @@
 with open('input.txt', 'r') as f:
-    history = [line[:-1] for line in f.readlines()]
+    grid = [list(map(int, list(line[:-1]))) for line in f.readlines()]
 
 totalVisible = 0
 scenicScores = []
 
 def getScenicScore(x, y, list):
     score = 0
-    for e in list: 
+    for e in list:
         score += 1
-        if int(e) >= int(history[x][y]):
+        if e >= grid[x][y]:
             break
     return score
-    
-for rowIndex in range(len(history)):
-    for colIndex in range(len(history[0])):
 
-        top = [x[colIndex] for x in history[:rowIndex]][::-1]
-        bottom = [x[colIndex] for x in history[rowIndex+1:]]
-        left = history[rowIndex][:colIndex][::-1]
-        right = history[rowIndex][colIndex+1:]
+for r in range(len(grid)):
+    for c in range(len(grid[r])):
 
-        #Q1
+        top = [grid[x][c] for x in range(r)][::-1]
+        bottom = [grid[x][c] for x in range(r+1, len(grid[r]))]
+        left = [grid[r][x] for x in range(c)][::-1]
+        right = [grid[r][x] for x in range(c+1, len(grid[r]))]
+
+        # Q1
         if any(
             [
-            all([int(x) < int(history[rowIndex][colIndex]) for x in top]),
-            all([int(x) < int(history[rowIndex][colIndex]) for x in bottom]),
-            all([int(x) < int(history[rowIndex][colIndex]) for x in left]),
-            all([int(x) < int(history[rowIndex][colIndex]) for x in right])]
+                all([x < grid[r][c] for x in top]),
+                all([x < grid[r][c] for x in bottom]),
+                all([x < grid[r][c] for x in left]),
+                all([x < grid[r][c] for x in right])]
         ):
             totalVisible += 1
 
-        #Q2
+        # Q2
         scenicScores.append(
-            getScenicScore(rowIndex, colIndex, top) *
-            getScenicScore(rowIndex, colIndex, bottom) *
-            getScenicScore(rowIndex, colIndex, left) *
-            getScenicScore(rowIndex, colIndex, right)
+            getScenicScore(r, c, top) *
+            getScenicScore(r, c, bottom) *
+            getScenicScore(r, c, left) *
+            getScenicScore(r, c, right)
         )
 
 print(totalVisible)
